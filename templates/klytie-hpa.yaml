@@ -1,0 +1,33 @@
+---
+#HPA
+
+{{- if .Values.lhotseService.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "oat-app.fullname" . }}-lhotse
+  labels:
+    {{- include "oat-app.labels" . | nindent 4 }}
+    component: lhotse
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "oat-app.fullname" . }}-lhotse
+  minReplicas: {{ .Values.lhotseService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.lhotseService.autoscaling.maxReplicas }}
+  metrics:
+  {{- with .Values.lhotseService.autoscaling.targetCPUUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: {{ . }}
+  {{- end }}
+  {{- with .Values.lhotseService.autoscaling.targetMemoryUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageValue: {{ . }}
+  {{- end }}
+{{- end }}
+---

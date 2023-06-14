@@ -1,0 +1,18 @@
+{{- if .Values.lhotseService.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "oat-app.fullname" . }}-cm-lhotse
+  labels:
+    app: {{ include "oat-app.name" . }}
+    component: lhotse
+data:
+  env: |
+      TZ: {{ .Values.lhotseService.TZ }}
+      POSTGRES_DB:{{ .Values.lhotseService.POSTGRES_DB }}
+      POSTGRES_USER:{{ .Values.lhotseService.POSTGRES_USER }}
+      POSTGRES_PASSWORD:{{ .Values.lhotseService.POSTGRES_PASSWORD }}
+      PGDATA: {{ .Values.lhotseService.POSTGRES_PGDATA }}
+      base_path: {{ .Values.lhotseService.base_path }}
+         
+{{- end}}

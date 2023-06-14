@@ -1,0 +1,325 @@
+# Default values for projectx-app.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+---
+replicaCount: 1
+strategy:
+  type: RollingUpdate
+  maxUnavailable: 0
+  maxSurge: 1
+app:
+  url: 
+  basePath: ""
+  env: sandbox
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 7
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 20
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 5
+  
+# Services
+europaService:
+  enabled: true
+  repository: sourcefuse/Opex-Analytics-Tool
+  tag: "1.0.0"
+  pullPolicy: Always
+  replicaCount: 1
+  affinity: {}
+  allowed_origins: "*"
+  imagePullPolicy:
+    enabled: "yes"
+    name: 
+  resources:
+    requests:
+      memory: "4Gi"
+      cpu: "2000m"
+    limits:
+      memory: "8Gi"
+      cpu: "4000m"
+  service:
+    type: NodePort
+    clusterIP: "240b:c0e0:204:5400:b4f4:2:0:b0b3"
+    port: 8888
+    targetPort: 8000
+    nodePort: 30003
+    protocol: TCP
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 80
+  base_path: /europa-service
+  TZ: Asia/Tokyo
+  DOTENV_FILE: "/mnt/opexfs/config/.env"
+
+
+persistence_europa:
+  enabled: true
+  opex-jupyterhub-home:
+    name: opex-jupyterhub-home
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 500Gi
+  opex-jupyterhub-config:
+    name: opex-jupyterhub-config
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 10Gi
+  opex-jupyterhub-srv:
+    name: opex-jupyterhub-srv
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 10Gi
+  opex-fs:
+    name: opex-fs
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 1Ti
+
+
+klytieService:
+  enabled: true
+  repository: sourcefuse/Opex-Analytics-Tool
+  tag: "1.0.0"
+  pullPolicy: Always
+  replicaCount: 1
+  affinity: {}
+  allowed_origins: "*"
+  imagePullPolicy:
+    enabled: "yes"
+    name: 
+  resources:
+    requests:
+      memory: "4Gi"
+      cpu: "2000m"
+    limits:
+      memory: "8Gi"
+      cpu: "4000m"
+  service:
+    type: NodePort
+    clusterIP: "240b:c0e0:204:5400:b4f4:2:0:b0b2"
+    port: 8080
+    targetPort: 8080
+    nodePort: 30002
+    protocol: TCP
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 80
+  base_path: /klytie-service
+  TZ: Asia/Tokyo
+  DOTENV_FILE: "/mnt/opexfs/config/.env"
+  NIFI_WEB_HTTP_HOST: "0.0.0.0"
+  NIFI_WEB_HTTP_PORT: "8080"
+  NIFI_SENSITIVE_PROPS_KEY: "bluesalt202123"
+
+persistence_klytie:
+  enabled: true
+  opex-nifi-conf:
+    name: opex-nifi-conf
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 10Gi
+  opex-nifi-database-repository:
+    name: opex-nifi-database-repository
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 100Gi
+  opex-nifi-flowfile-repository:
+    name: opex-nifi-flowfile-repository
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 100Gi
+  opex-nifi-content-repository:
+    name: opex-nifi-content-repository
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 200Gi
+  opex-nifi-provenance-repository:
+    name: opex-nifi-provenance-repository
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 200Gi
+  opex-nifi-state:
+    name: opex-nifi-state
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 100Gi
+  opex-nifi-logs:
+    name: opex-nifi-logs
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 500Gi
+  opex-fs:
+    name: opex-fs
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 1TGi
+
+
+lhotseService:
+  enabled: true
+  repository: sourcefuse/Opex-Analytics-Tool
+  tag: "1.0.0"
+  pullPolicy: Always
+  replicaCount: 1
+  affinity: {}
+  allowed_origins: "*"
+  imagePullPolicy:
+    enabled: "yes"
+    name: 
+  resources:
+    requests:
+      memory: "8Gi"
+      cpu: "4000m"
+    limits:
+      memory: "16Gi"
+      cpu: "4000m"
+  service:
+    type: NodePort
+    clusterIP: "240b:c0e0:204:5400:b4f4:2:0:b0b1"
+    port: 5432
+    targetPort: 5432
+    nodePort: 30001
+    protocol: TCP
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 80
+  base_path: /lhotse-service
+  TZ: Asia/Tokyo
+  POSTGRES_DB: "oat_dw"
+  POSTGRES_USER: "oat"
+  POSTGRES_PASSWORD: "bluesalt"
+  PGDATA: "/var/lib/postgresql/data/pgdata"
+
+persistence_lhotse:
+  enabled: true
+  opex-db-data:
+    name: opex-db-data
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 1024Gi
+
+nestorService:
+  enabled: true
+  repository: sourcefuse/Opex-Analytics-Tool
+  tag: "1.0.0"
+  pullPolicy: Always
+  replicaCount: 1
+  affinity: {}
+  allowed_origins: "*"
+  imagePullPolicy:
+    enabled: "yes"
+    name: 
+  resources:
+    requests:
+      memory: "8Gi"
+      cpu: "4000m"
+    limits:
+      memory: "16Gi"
+      cpu: "4000m"
+  service:
+    type: NodePort
+    clusterIP: "240b:c0e0:204:5400:b4f4:2:0:b0b4"
+    port: 2222
+    targetPort: 22
+    nodePort: 30004
+    protocol: TCP
+  autoscaling:
+    enabled: true
+    minReplicas: 1
+    maxReplicas: 2
+    targetCPUUtilizationPercentage: 75
+    targetMemoryUtilizationPercentage: 80
+  base_path: /nestor-service
+  TZ: Asia/Tokyo
+
+persistence_nestor:
+  enabled: true
+  opex-atmoz-home:
+    name: opex-atmoz-home
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 500Gi
+  opex-fs:
+    name: opex-fs
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 1Ti
+  opex-backup:
+    name: opex-backup
+    storageClassName: robin
+    accessModes:
+    - ReadWriteMany
+    resources:
+      requests:
+        storage: 500Gi
+
+imagePullSecret:
+  enabled: true
+  name: 
+  registry: https://index.docker.io/v1/
+  username: sourcefuse
+  password: Docker2@31
+  email: devops@sourcefuse.com
+

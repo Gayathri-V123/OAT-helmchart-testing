@@ -1,0 +1,100 @@
+{{- if .Values.europaService.enabled }}
+---
+#Deployment
+
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+  name: {{ include "oat-app.fullname" . }}-europa
+  labels: 
+    {{- include "oat-app.labels" . | nindent 4 }} 
+    component: europa
+spec: 
+  replicas: {{ .Values.replicaCount }}
+  strategy:
+    type: {{ .Values.strategy.type }}
+    rollingUpdate:
+      maxUnavailable: {{ .Values.strategy.maxUnavailable }}
+      maxSurge: {{ .Values.strategy.maxSurge }}
+  selector: 
+    matchLabels:
+      {{- include "oat-app.selectorLabels" . | nindent 6 }}
+      component: europa
+  template: 
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/cm-europa.yaml") . | sha256sum }}
+        prometheus.io/path: {{ .Values.app.basePath }}/europa/obf/metrics
+{{- if .Values.extraAnnotations }} 
+{{ toYaml .Values.extraAnnotations | indent 8 }} 
+{{- end }}
+      labels:
+        {{- include "oat-app.selectorLabels" . | nindent 8 }}
+        component: europa
+    spec:
+      containers:
+        - imagePullPolicy: {{ .Values.europaService.pullPolicy }}
+          resources:
+            {{- toYaml .Values.europaService.resources | nindent 12 }}
+{{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.app.basePath }}/europa
+              port: 3000
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+{{- end }}
+{{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.app.basePath }}/europa
+              port: 3000
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          
+{{- end }}
+          name: {{ .Chart.Name }}-europa
+          image: {{ .Values.europaService.repository }}:{{ .Values.europaService.tag }}
+          volumeMounts:
+            - mountPath: "/home"
+              name: {{ .Values.persistence_europa.opex-jupyterhub-home.name }}
+            - mountPath: "/srv/jupyterhub/"
+              name: {{ .Values.persistence_europa.opex-jupyterhub-config.name }}
+            - mountPath: "/etc/jupyterhub/"
+              name: {{ .Values.persistence_europa.opex-jupyterhub-srv.name }}
+            - mountPath: "/mnt/opexfs/"
+              name: {{ .Values.persistence_europa.opex-fs.name }}
+            - mountPath: /home/node/app/.env
+              subPath: .env
+              name: env-var
+              
+      volumes:
+        - name: opex-jupyterhub-home
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence_europa.opex-jupyterhub-home.name }}
+        - name: opex-jupyterhub-config
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence_europa.opex-jupyterhub-config.name }}
+        - name: opex-jupyterhub-srv
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence_europa.opex-jupyterhub-srv.name }}
+        - name: opex-fs
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence_europa.opex-fs.name }}
+        - name: env-var
+          configMap:
+            name: {{ include "oat-app.fullname" . }}-cm-europa
+            items:
+            - key: env
+              path: .env
+
+
+{{- if .Values.imagePullSecret.enabled }}            
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret.name }}
+{{- end }}
+---
+{{- end }}
+

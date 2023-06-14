@@ -1,0 +1,33 @@
+---
+#HPA
+
+{{- if .Values.klytieService.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "oat-app.fullname" . }}-klytie
+  labels:
+    {{- include "oat-app.labels" . | nindent 4 }}
+    component: klytie
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "oat-app.fullname" . }}-klytie
+  minReplicas: {{ .Values.klytieService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.klytieService.autoscaling.maxReplicas }}
+  metrics:
+  {{- with .Values.klytieService.autoscaling.targetCPUUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: {{ . }}
+  {{- end }}
+  {{- with .Values.klytieService.autoscaling.targetMemoryUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageValue: {{ . }}
+  {{- end }}
+{{- end }}
+---

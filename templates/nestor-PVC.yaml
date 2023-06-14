@@ -1,0 +1,46 @@
+{{- if .Values.persistence_nestor.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_nestor.opex-atmoz-home.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_nestor.opex-atmoz-home.storageClassNam }} 
+
+spec:
+   accessModes:
+   - {{ .Values.persistence_nestor.opex-atmoz-home.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_nestor.opex-atmoz-home.storage }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_nestor.opex-fs.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_nestor.opex-fs.storageClassName }}
+
+spec:
+   accessModes:
+      - {{ .Values.persistence_nestor.opex-fs.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_nestor.opex-fs.name.storage }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_nestor.opex-backup.name }} 
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_nestor.opex-backup.storageClassName }}
+
+spec:
+   accessModes:
+       - {{ .Values.persistence_nestor.opex-backup.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_nestor.opex-backup.storage }}
+---
+{{- end }}

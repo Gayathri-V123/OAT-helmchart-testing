@@ -1,0 +1,15 @@
+
+{{- if .Values.europaService.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "oat-app.fullname" . }}-cm-europa
+  labels:
+    app: {{ include "oat-app.name" . }}
+    component: europa
+data:
+  env: |
+      TZ={{ .Values.europaService.TZ }}
+      DOTENV_FILE={{ .Values.europaService.TZ }}  
+      base_path: {{ .Values.europarService.base_path }}       
+{{- end}}

@@ -1,0 +1,33 @@
+---
+#HPA
+
+{{- if .Values.europaService.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "oat-app.fullname" . }}-europa
+  labels:
+    {{- include "oat-app.labels" . | nindent 4 }}
+    component: europa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "oat-app.fullname" . }}-europa
+  minReplicas: {{ .Values.europaService.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.europaService.autoscaling.maxReplicas }}
+  metrics:
+  {{- with .Values.europaService.autoscaling.targetCPUUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageUtilization: {{ . }}
+  {{- end }}
+  {{- with .Values.europaService.autoscaling.targetMemoryUtilizationPercentage }}
+  - type: Resource
+    resource:
+      name: memory
+      targetAverageValue: {{ . }}
+  {{- end }}
+{{- end }}
+---

@@ -1,0 +1,69 @@
+{{- if .Values.nestorService.enabled }}
+---
+#Deployment
+
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+  name: {{ include "oat-app.fullname" . }}-nestor
+  labels: 
+    {{- include "oat-app.labels" . | nindent 4 }} 
+    component: nestor
+spec: 
+  replicas: {{ .Values.replicaCount }}
+  selector: 
+    matchLabels:
+      {{- include "oat-app.selectorLabels" . | nindent 6 }}
+      component: nestor
+  template: 
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/cm-nestor.yaml") . | sha256sum }}
+        prometheus.io/path: {{ .Values.app.basePath }}/nestor/obf/metrics
+{{- if .Values.extraAnnotations }} 
+{{ toYaml .Values.extraAnnotations | indent 8 }} 
+{{- end }}
+      labels:
+        {{- include "oat-app.selectorLabels" . | nindent 8 }}
+        component: nestor
+    spec:
+      containers:
+          imagePullPolicy: {{ .Values.nestorService.pullPolicy }}
+          resources:
+            {{- toYaml .Values.nestorService.resources | nindent 12 }}
+      - name: {{ .Chart.Name }}-nestor
+      image: {{ .Values.nestorService.repository }}:{{ .Values.nestorService.tag }}
+        volumeMounts:
+        - mountPath: "/home/"
+          name: {{ .Values.persistence_nestor.opex-atmoz-home.name }}
+        - mountPath: "/home/opex/"
+          name: {{ .Values.persistence_nestor.opex-fs.name }}
+        - mountPath: "/mnt/backup/"
+          name: {{ .Values.persistence_nestor.opex-backup.name }}
+        - mountPath: "/home/node/app/.env"
+          name: env-var
+          subPath: .env
+      volumes:
+      - name: {{ .Values.persistence_nestor.opex-atmoz-home.name }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence_nestor.opex-atmoz-home.name }}
+      - name: {{ .Values.persistence_nestor.opex-fs.name }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence_nestor.opex-fs.name }}
+      - name: {{ .Values.persistence_nestor.opex-backup.name }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence_nestor.opex-backup.name }}
+      - name: env-var
+          configMap:
+            name: {{ include "oat-app.fullname" . }}-cm-nestor
+            items:
+            - key: env
+              path: .env 
+
+{{- if .Values.imagePullSecret.enabled }}            
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret.name }}
+{{- end }}
+
+---
+{{- end }}

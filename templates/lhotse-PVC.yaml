@@ -1,0 +1,17 @@
+{{- if .Values.persistence_lhotse.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_lhotse.opex-db-data.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_lhotse.opex-db-data.storageClassName }}
+
+spec:
+   accessModes:
+   - {{ .Values.persistence_lhotse.opex-db-data.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_lhotse.opex-db-data.storage }}
+---
+{{- end }}

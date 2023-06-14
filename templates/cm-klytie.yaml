@@ -1,0 +1,17 @@
+{{- if .Values.klytieService.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "oat-app.fullname" . }}-cm-klytie
+  labels:
+    app: {{ include "oat-app.name" . }}
+    component: klytie
+data:
+  env: |
+      TZ: {{ .Values.klytieService.TZ }}
+      DOTENV_FILE:{{ .Values.klytieService.DOTENV_FILE }}
+      NIFI_WEB_HTTP_HOST:{{ .Values.klytieService.NIFI_WEB_HTTP_HOST }}
+      NIFI_WEB_HTTP_PORT:{{ .Values.klytieService.NIFI_WEB_HTTP_PORT }}
+      NIFI_SENSITIVE_PROPS_KEY:{{ .Values.klytieService.NIFI_SENSITIVE_PROPS_KEY }}
+      base_path: {{ .Values.klytieService.base_path }}  
+{{- end}}

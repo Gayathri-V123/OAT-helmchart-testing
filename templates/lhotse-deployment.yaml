@@ -1,0 +1,79 @@
+{{- if .Values.lhotseService.enabled }}
+---
+#Deployment
+
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+  name: {{ include "oat-app.fullname" . }}-lhotse
+  labels: 
+    {{- include "oat-app.labels" . | nindent 4 }} 
+    component: lhotse
+spec: 
+  replicas: {{ .Values.replicaCount }}
+  selector: 
+    matchLabels:
+      {{- include "oat-app.selectorLabels" . | nindent 6 }}
+      component: lhotse
+  template: 
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/cm-lhotse.yaml") . | sha256sum }}
+        prometheus.io/path: {{ .Values.app.basePath }}/lhotse/obf/metrics
+{{- if .Values.extraAnnotations }} 
+{{ toYaml .Values.extraAnnotations | indent 8 }} 
+{{- end }}
+      labels:
+        {{- include "oat-app.selectorLabels" . | nindent 8 }}
+        component: lhotse
+    spec:
+      containers:
+        - imagePullPolicy: {{ .Values.lhotseService.pullPolicy }}
+          resources:
+            {{- toYaml .Values.lhotseService.resources | nindent 12 }}
+{{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.app.basePath }}/lhotse
+              port: 3000
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+{{- end }}
+{{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.app.basePath }}/lhotse
+              port: 3000
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+                        
+{{- end }}
+          name: {{ .Chart.Name }}-lhotse
+          image: {{ .Values.lhotseService.repository }}:{{ .Values.lhotseService.tag }}
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data/"
+              name: {{ .Values.persistence_lhotse.opex-db-data.name }}
+            - name: env-var
+              mountPath: /home/node/app/.env
+              subPath: .env
+
+      volumes:
+      - name: {{ .Values.persistence_lhotse.opex-db-data.name }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence_lhotse.opex-db-data.name }}
+      - name: env-var
+        configMap:
+          name: {{ include "oat-app.fullname" . }}-cm-lhotse
+          items:
+          - key: env
+            path: .env
+
+{{- if .Values.imagePullSecret.enabled }}            
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret.name }}
+{{- end }}
+---
+{{- end }}
+

@@ -1,0 +1,123 @@
+{{- if .Values.persistence_lhotse.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_lhotse.opex-nifi-conf.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_lhotse.opex-nifi-conf.storageClassName }}
+
+spec:
+   accessModes:
+   - {{ .Values.pvcpersistence_lhotse.opex-nifi-conf.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_lhotse.opex-nifi-conf.storage }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_lhotse.opex-nifi-database-repository.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_lhotse.opex-nifi-database-repository.storageClassName }}
+
+spec:
+   accessModes:
+      - {{ .Values.pvcpersistence_lhotse.opex-nifi-database-repository.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_lhotse.opex-nifi-database-repository.storage }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_lhotse.opex-nifi-flowfile-repository.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_lhotse.opex-nifi-flowfile-repository.storageClassName }}
+
+spec:
+   accessModes:
+       - {{ .Values.pvcpersistence_lhotse.opex-nifi-flowfile-repository.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_lhotse.opex-nifi-flowfile-repository.storage }}
+---
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_lhotse.opex-nifi-content-repository.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_lhotse.opex-nifi-content-repository.storageClassName }}
+
+spec:
+   accessModes:
+     - {{ .Values.pvcpersistence_lhotse.opex-nifi-content-repository.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_lhotse.opex-nifi-content-repository.storage }}
+---
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_lhotse.opex-nifi-provenance-repository.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_lhotse.opex-nifi-provenance-repository.storageClassName }}
+
+spec:
+   accessModes:
+     - {{ .Values.pvcpersistence_lhotse.opex-nifi-provenance-repository.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_lhotse.opex-nifi-provenance-repository.storage }}
+---
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_lhotse.opex-nifi-state.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_lhotse.opex-nifi-state.storageClassName }}
+
+spec:
+   accessModes:
+     - {{ .Values.pvcpersistence_lhotse.opex-nifi-state.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_lhotse.opex-nifi-state.storage }}
+---
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_lhotse.opex-nifi-logs.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_lhotse.opex-nifi-logs.storageClassName }}
+
+spec:
+   accessModes:
+     - {{ .Values.pvcpersistence_lhotse.opex-nifi-logs.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_lhotse.opex-nifi-logs.storage }}
+---
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_lhotse.opex-fs.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_lhotse.opex-fs.storageClassName }}
+
+spec:
+   accessModes:
+     - {{ .Values.pvcpersistence_lhotse.opex-fs.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_lhotse.opex-fs.storage }}
+---
+{{- end }}

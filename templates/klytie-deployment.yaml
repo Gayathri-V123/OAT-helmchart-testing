@@ -1,0 +1,114 @@
+{{- if .Values.klytieService.enabled }}
+---
+#Deployment
+
+apiVersion: apps/v1 
+kind: Deployment 
+metadata: 
+  name: {{ include "oat-app.fullname" . }}-klytie
+  labels: 
+    {{- include "oat-app.labels" . | nindent 4 }} 
+    component: klytie
+spec: 
+  replicas: {{ .Values.replicaCount }}
+  selector: 
+    matchLabels:
+      {{- include "oat-app.selectorLabels" . | nindent 6 }}
+      component: klytie
+  template: 
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/cm-klytie.yaml") . | sha256sum }}
+        prometheus.io/path: {{ .Values.app.basePath }}/klytie/obf/metrics
+{{- if .Values.extraAnnotations }} 
+{{ toYaml .Values.extraAnnotations | indent 8 }} 
+{{- end }}
+      labels:
+        {{- include "oat-app.selectorLabels" . | nindent 8 }}
+        component: klytie
+    spec:
+      containers:
+        - imagePullPolicy: {{ .Values.klytieService.pullPolicy }}
+          resources:
+            {{- toYaml .Values.klytieService.resources | nindent 12 }}
+{{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.app.basePath }}/klytie
+              port: 3000
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+{{- end }}
+{{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.app.basePath }}/klytie
+              port: 3000
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+                        
+{{- end }}
+          name: {{ .Chart.Name }}-klytie
+          image: {{ .Values.klytieService.repository }}:{{ .Values.klytieService.tag }}
+          volumeMounts:
+            - mountPath: "/opt/nifi/nifi-current/conf/"
+            #- mountPath: "/home/nifi/mnt/"
+              name: {{ .Values.persistence_klytie.opex-nifi-conf.name }}
+            - mountPath: "/opt/nifi/nifi-current/database_repository/"
+              name: {{ .Values.persistence_klytie.opex-nifi-database-repository.name }}
+            - mountPath: "/opt/nifi/nifi-current/flowfile_repository/"
+              name: {{ .Values.persistence_klytie.opex-nifi-flowfile-repository.name }}
+            - mountPath: "/opt/nifi/nifi-current/content_repository/"
+              name: {{ .Values.persistence_klytie.opex-nifi-content-repository.name }}
+            - mountPath: "/opt/nifi/nifi-current/provenance_repository/"
+              name: {{ .Values.persistence_klytie.opex-nifi-provenance-repository.name }}
+            - mountPath: "/opt/nifi/nifi-current/state/"
+              name: {{ .Values.persistence_klytie.opex-nifi-state.name }}
+            - mountPath: "/opt/nifi/nifi-current/logs/"
+              name: {{ .Values.persistence_klytie.opex-nifi-logs.name }}
+            - mountPath: "/mnt/opexfs/"
+              name: {{ .Values.persistence_klytie.opex-fs.name }}
+            - name: env-var
+              mountPath: /home/node/app/.env
+              subPath: .env
+      volumes:
+      - name: opex-nifi-conf
+        persistentVolumeClaim:
+        claimName: {{ .Values.persistence_klytie.opex-nifi-conf.name }}
+      - name: opex-nifi-database-repository
+        persistentVolumeClaim:
+        claimName: {{ .Values.persistence_klytie.opex-nifi-database-repository.name }}
+      - name: opex-nifi-flowfile-repository
+        persistentVolumeClaim:
+        claimName: {{ .Values.persistence_klytie.opex-nifi-flowfile-repository.name }}
+      - name: opex-nifi-content-repository
+        persistentVolumeClaim:
+        claimName: {{ .Values.persistence_klytie.opex-nifi-content-repository.name }}
+      - name: opex-nifi-provenance-repository
+        persistentVolumeClaim:
+        claimName: {{ .Values.persistence_klytie.opex-nifi-provenance-repository.name }}
+      - name: opex-nifi-state
+        persistentVolumeClaim:
+        claimName: {{ .Values.persistence_klytie.opex-nifi-state.name }}
+      - name: opex-nifi-logs
+        persistentVolumeClaim:
+        claimName: {{ .Values.persistence_klytie.opex-nifi-logs.name }}
+      - name: opex-fs
+        persistentVolumeClaim:
+        claimName: {{ .Values.persistence_klytie.opex-fs.name }}
+      - name: env-var
+        configMap:
+          name: {{ include "oat-app.fullname" . }}-cm-klytie
+          items:
+          - key: env
+            path: .env
+
+{{- if .Values.imagePullSecret.enabled }}            
+      imagePullSecrets:
+      - name: {{ .Values.imagePullSecret.name }}
+{{- end }}
+---
+{{- end }}
+

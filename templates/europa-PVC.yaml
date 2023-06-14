@@ -1,0 +1,61 @@
+{{- if .Values.persistence_europa.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_europa.opex-jupyterhub-home.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_europa.opex-jupyterhub-home.storageClassName }}
+
+spec:
+   accessModes:
+   - {{ .Values.pvcpersistence_europa.opex-jupyterhub-home.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_europa.opex-jupyterhub-home.storage }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_europa.opex-jupyterhub-config.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_europa.opex-jupyterhub-config.storageClassName }}
+
+spec:
+   accessModes:
+      - {{ .Values.pvcpersistence_europa.opex-jupyterhub-config.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_europa.opex-jupyterhub-config.storage }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_europa.opex-jupyterhub-srv.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_europa.opex-jupyterhub-srv.storageClassName }}
+
+spec:
+   accessModes:
+       - {{ .Values.pvcpersistence_europa.opex-jupyterhub-srv.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_europa.opex-jupyterhub-srv.storage }}
+---
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+   name: {{ .Values.persistence_europa.opex-fs.name }}
+   annotations:
+      volume.beta.kubernetes.io/storage-class: {{ .Values.persistence_europa.opex-fs.storageClassName }}
+
+spec:
+   accessModes:
+     - {{ .Values.pvcpersistence_europa.opex-fs.accessModes | toYaml | nindent 6 }}
+   resources:
+       requests:
+          storage: {{ .Values.persistence_europa.opex-fs.storage }}
+---
+{{- end }}
